@@ -3,25 +3,9 @@
 	<title>Diashow</title>
 
 	<script type="text/javascript" src="jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="jquery.qrcode-0.2.min.js"></script>
 
-	<style type="text/css">
-		* {
-			margin: 0px;
-			padding: 0px;
-			background-color: black;
-		}
-
-		.image {
-			position: absolute;
-		}
-
-		#A {
-		}
-
-		#B {
-			display: none;
-		}
-	</style>
+	<link rel="stylesheet" type="text/css" href="style.css">
 
 	<script type="text/javascript">
 
@@ -30,14 +14,18 @@
 		var w = $(window).width();
 		var h = $(window).height();
 		if ( w > h){
-			$('.image img').css('width', w);
-			$('.image img').css('height', undefined);
+			$('.image .picture').css('width', w);
+			$('.image .picture').css('height', undefined);
 		} else {
-			$('.image img').css('width', undefined);
-			$('.image img').css('height', h);
+			$('.image .picture').css('width', undefined);
+			$('.image .picture').css('height', h);
 		}
 		$('.image').css('width', w);
 		$('.image').css('height', h);
+
+		$('.info_footer').css('width', w);
+		$('.info_footer').css('height', 200);
+		$('.info_footer').css('top', h - 200);
 	}
 
 	$(window).resize( window_size_changed );
@@ -47,17 +35,26 @@
 		window_size_changed();
 
 		var images = []
+		var qr_codes = []
 		var image_index = 1;
 		var B_visible = false;
-		var fading_duration = 1500;
-		var picture_visible_duration = 1000;
-		var image_list_update_interval = 3000;
-
+		var fading_duration = 1000;
+		var picture_visible_duration = 5000;
+		var image_list_update_interval = 30000;
 
 		var update_image_list = function() {
 			$.getJSON('cgi-bin/images_list.py', function(data){
-				images = data;
-				console.log("got new image list: " + data);
+				var new_images = [];
+				var new_qr_codes = [];
+				for (var i = 0; i < data.length; i++){
+					new_images.push(data[i]['image']);
+					new_qr_codes.push(data[i]['qrcode']);
+				}
+				images = new_images;
+				qr_codes = new_qr_codes;
+
+				console.log("got new image list: " + new_images);
+				console.log("got new qrcode list: " + qr_codes);
 				setTimeout(update_image_list, image_list_update_interval);
 			});
 		}
@@ -65,11 +62,16 @@
 		var load_next = function(B_visible) {
 			image_index = (image_index +1) % images.length;
 			var image_src = images[image_index];
+			var qr_code_src = qr_codes[image_index];
+
 			console.log("loading: " + image_src);
+
 			if(B_visible){
-				$('#A img').attr('src', image_src);
+				$('#A .picture').attr('src', image_src);
+				$('#A .qr_code').attr('src', qr_code_src);
 			} else {
-				$('#B img').attr('src', image_src);
+				$('#B .picture').attr('src', image_src);
+				$('#B .qr_code').attr('src', qr_code_src);
 			}
 		}
 
@@ -96,11 +98,27 @@
 	<!-- <div id="presenter"/> -->
 
 	<div id="A" class="image">
-		<img src='resources/loading01.jpg'>
+		<img class="picture" src='resources/loading01.jpg'>
+
+		<div class="info_footer">
+			<img class="qr_code"/>
+			<span>
+				Scan to download.
+			</span>
+		</div>
+
 	</div>
 
 	<div id="B" class="image">
-		<img src="resources/loading02.png">
+		<img class="picture" src="resources/loading02.png">
+
+		<div class="info_footer">
+			<img class="qr_code"/>
+			<span>
+				Scan to download.
+			</span>
+		</div>
 	</div>
+
 </body>
 </html>

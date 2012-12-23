@@ -1,0 +1,37 @@
+* {
+	margin: 0px;
+	padding: 0px;
+	background-color: black;
+}
+
+.image {
+	position: absolute;
+}
+
+#A {
+}
+
+#B {
+	display: none;
+}
+
+.info_footer {
+	position: absolute;
+	background-color: rgba(0,0,0,0.7);
+}
+.info_footer * {
+	display: inline;
+}
+
+.qr_code {
+	width: 200px;
+	height: 200px;
+}
+
+.info_footer span {
+	color: white;
+	vertical-align: top;
+	font-size: 28px;
+	font-family: sans-serif;
+	background-color: rgba(0,0,0,0.0);
+}
