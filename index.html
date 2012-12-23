@@ -1,0 +1,106 @@
+<html>
+<head>
+	<title>Diashow</title>
+
+	<script type="text/javascript" src="jquery-1.8.3.min.js"></script>
+
+	<style type="text/css">
+		* {
+			margin: 0px;
+			padding: 0px;
+			background-color: black;
+		}
+
+		.image {
+			position: absolute;
+		}
+
+		#A {
+		}
+
+		#B {
+			display: none;
+		}
+	</style>
+
+	<script type="text/javascript">
+
+	var window_size_changed = function() {
+		console.log("resize");
+		var w = $(window).width();
+		var h = $(window).height();
+		if ( w > h){
+			$('.image img').css('width', w);
+			$('.image img').css('height', undefined);
+		} else {
+			$('.image img').css('width', undefined);
+			$('.image img').css('height', h);
+		}
+		$('.image').css('width', w);
+		$('.image').css('height', h);
+	}
+
+	$(window).resize( window_size_changed );
+
+	$(document).ready(function() {
+
+		window_size_changed();
+
+		var images = []
+		var image_index = 1;
+		var B_visible = false;
+		var fading_duration = 1500;
+		var picture_visible_duration = 1000;
+		var image_list_update_interval = 3000;
+
+
+		var update_image_list = function() {
+			$.getJSON('cgi-bin/images_list.py', function(data){
+				images = data;
+				console.log("got new image list: " + data);
+				setTimeout(update_image_list, image_list_update_interval);
+			});
+		}
+
+		var load_next = function(B_visible) {
+			image_index = (image_index +1) % images.length;
+			var image_src = images[image_index];
+			console.log("loading: " + image_src);
+			if(B_visible){
+				$('#A img').attr('src', image_src);
+			} else {
+				$('#B img').attr('src', image_src);
+			}
+		}
+
+		var switchImages = function() {
+			// console.log("switching image");
+			$('#B').fadeToggle(fading_duration, function(){
+				B_visible = !B_visible;
+				load_next(B_visible);
+				setTimeout(switchImages, picture_visible_duration);
+			});
+		}
+
+		console.log("initial image load");
+		switchImages();
+		update_image_list();
+
+	});
+	
+
+	</script>
+
+</head>
+<body>
+	<!-- <div id="presenter"/> -->
+
+	<div id="A" class="image">
+		<img src='resources/loading01.jpg'>
+	</div>
+
+	<div id="B" class="image">
+		<img src="resources/loading02.png">
+	</div>
+</body>
+</html>
