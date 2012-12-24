@@ -1,2 +1,5 @@
 .DS_Store
 *.pyc
+images/*.png
+images/*.jpg
+images/*.jpeg
