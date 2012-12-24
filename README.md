@@ -5,7 +5,7 @@ This is a _very_ simple diashow implementation based on python and jquery, where
 ## key feature
 
 - It automaticaly fetches a new list of images from the server every x secounds in the backgroud. This way it also displays new images.
-- It supports different index itterator, effectivaly controlling which images to show. By using the IncreaseProbabilityIndexIterator newer images are shown more fequently.
+- It supports different index itterators, effectively controlling which images to show. By using the IncreaseProbabilityIndexIterator newer images are shown more fequently.
 
 # requirements
 
