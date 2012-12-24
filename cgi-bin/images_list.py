@@ -35,4 +35,7 @@ for d in os.listdir("images/"):
 	e['qrcode'] = "{}{}".format(qr_dir, d)
 	entries.append(e)
 
+# order old -> new
+entries.sort(key=lambda f: os.stat(f['image']).st_mtime)
+
 print json.dumps(entries)

@@ -15,23 +15,28 @@
 	display: none;
 }
 
-.info_footer {
+.info_box {
 	position: absolute;
-	background-color: rgba(0,0,0,0.7);
+	background-color: rgba(0,0,0,0.6);
+	display: none;
 }
-.info_footer * {
+
+.info_box * {
 	display: inline;
 }
 
-.qr_code {
-	width: 200px;
-	height: 200px;
-}
-
-.info_footer span {
+.info_box span {
 	color: white;
 	vertical-align: top;
 	font-size: 28px;
 	font-family: sans-serif;
 	background-color: rgba(0,0,0,0.0);
+}
+
+.qr_code {
+	width: 196px;
+	height: 196px;
+	border: solid;
+	border-color: black;
+	border-width: 2px;
 }

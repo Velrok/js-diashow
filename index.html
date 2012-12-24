@@ -4,28 +4,42 @@
 
 	<script type="text/javascript" src="jquery-1.8.3.min.js"></script>
 	<script type="text/javascript" src="jquery.qrcode-0.2.min.js"></script>
+	<script type="text/javascript" src="app.js"></script>
+	<script type="text/javascript" src="linear_index_generator.js"></script>
+	<script type="text/javascript" src="random_index_generator.js"></script>
+	<script type="text/javascript" src="increase_probability_index_generator.js"></script>
 
 	<link rel="stylesheet" type="text/css" href="style.css">
 
 	<script type="text/javascript">
 
+	var images = []
+	var qr_codes = []
+
+	var idx_iter = new IncreaseProbabilityIndexIterator(0);
+
+	var B_visible = false;
+	var fading_duration = 300;
+	var picture_visible_duration = 15000;
+	var info_box_duration = 13000;
+	var info_box_sliding_duration = 300;
+	var image_list_update_interval = 60000;
+
 	var window_size_changed = function() {
-		console.log("resize");
 		var w = $(window).width();
 		var h = $(window).height();
-		if ( w > h){
-			$('.image .picture').css('width', w);
-			$('.image .picture').css('height', undefined);
-		} else {
-			$('.image .picture').css('width', undefined);
-			$('.image .picture').css('height', h);
-		}
-		$('.image').css('width', w);
-		$('.image').css('height', h);
 
-		$('.info_footer').css('width', w);
-		$('.info_footer').css('height', 200);
-		$('.info_footer').css('top', h - 200);
+		resize_picture_container(w,h);
+		resize_picture(w,h);
+		resize_picture_info_box(w,h);
+	}
+
+	var get_image_src = function(index) {
+		return images[index];
+	}
+
+	var get_qr_code_src = function(index) {
+		return qr_codes[index];
 	}
 
 	$(window).resize( window_size_changed );
@@ -34,37 +48,31 @@
 
 		window_size_changed();
 
-		var images = []
-		var qr_codes = []
-		var image_index = 1;
-		var B_visible = false;
-		var fading_duration = 1000;
-		var picture_visible_duration = 5000;
-		var image_list_update_interval = 30000;
-
 		var update_image_list = function() {
 			$.getJSON('cgi-bin/images_list.py', function(data){
-				var new_images = [];
-				var new_qr_codes = [];
-				for (var i = 0; i < data.length; i++){
-					new_images.push(data[i]['image']);
-					new_qr_codes.push(data[i]['qrcode']);
-				}
-				images = new_images;
-				qr_codes = new_qr_codes;
+				var r = split_image_list_data(data);
+				images = r['images'];
+				qr_codes = r['qr_codes'];
 
-				console.log("got new image list: " + new_images);
+				idx_iter.update(images.length);
+
+				console.log("got new image list: " + images);
 				console.log("got new qrcode list: " + qr_codes);
 				setTimeout(update_image_list, image_list_update_interval);
 			});
 		}
 
-		var load_next = function(B_visible) {
-			image_index = (image_index +1) % images.length;
-			var image_src = images[image_index];
-			var qr_code_src = qr_codes[image_index];
+		var toggle_info_box = function() {
+			$('.info_box').slideToggle(500)
+		}
 
-			console.log("loading: " + image_src);
+		var load_next = function(B_visible) {
+			var index = idx_iter.next();
+
+			var image_src = get_image_src(index);
+			var qr_code_src = get_qr_code_src(index);
+
+			console.log("loading(" + index + "): " + image_src);
 
 			if(B_visible){
 				$('#A .picture').attr('src', image_src);
@@ -75,17 +83,26 @@
 			}
 		}
 
-		var switchImages = function() {
+		var fade_info_box = function() {
+			// fade in
+			setTimeout(toggle_info_box, picture_visible_duration - info_box_duration - info_box_sliding_duration);
+
+			// fade out
+			setTimeout(toggle_info_box, picture_visible_duration - info_box_sliding_duration);
+		}
+
+		var fade_images = function() {
 			// console.log("switching image");
 			$('#B').fadeToggle(fading_duration, function(){
 				B_visible = !B_visible;
 				load_next(B_visible);
-				setTimeout(switchImages, picture_visible_duration);
+				setTimeout(fade_images, picture_visible_duration);
+				fade_info_box();
 			});
 		}
 
 		console.log("initial image load");
-		switchImages();
+		fade_images();
 		update_image_list();
 
 	});
@@ -100,10 +117,10 @@
 	<div id="A" class="image">
 		<img class="picture" src='resources/loading01.jpg'>
 
-		<div class="info_footer">
+		<div class="info_box">
 			<img class="qr_code"/>
 			<span>
-				Scan to download.
+				&lt;- Bild laden
 			</span>
 		</div>
 
@@ -112,10 +129,10 @@
 	<div id="B" class="image">
 		<img class="picture" src="resources/loading02.png">
 
-		<div class="info_footer">
+		<div class="info_box">
 			<img class="qr_code"/>
 			<span>
-				Scan to download.
+				&lt;- Bild laden
 			</span>
 		</div>
 	</div>
