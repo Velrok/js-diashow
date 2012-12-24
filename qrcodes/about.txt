@@ -1,0 +1,1 @@
+# python will generate qrcodes for the images and put (cache) them in here
