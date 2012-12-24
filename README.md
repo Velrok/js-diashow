@@ -10,9 +10,11 @@ This is a _very_ simple diashow implementation based on python and jquery, where
 # requirements
 
 - python 2.7
-- pip
-- qrcode
-- PIL ( python image library )
+	- pip
+	- qrcode
+	- PIL ( python image library )
+
+- modern browser ;)
 
 # installation
 
